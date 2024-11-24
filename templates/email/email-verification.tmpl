@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	<html dir="ltr" lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Verify Your Account</title>
+		<style>
+			@import url('https://rsms.me/inter/font-files/Inter-Regular.woff2?v=3.19');
+			body { 
+				font-family: 'Inter', sans-serif; 
+				line-height: 1.6; 
+				color: #374151; 
+			}
+			.verify-button {
+				display: inline-block;
+				background-color: #000000;
+				color: #ffffff !important;
+				padding: 12px 34px;
+				text-decoration: none;
+				border-radius: 6px;
+				font-weight: 500;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="max-width:600px;margin:0 auto;padding:20px;">
+			<h2>📧 Verify Your Account Now!</h2>
+			<p>Thank you for joining Sweetlife 🎉</p>
+			
+			<p>You're just one step away from activating your account. Simply click the button below to verify your email:</p>
+			
+			<div style="margin:20px 0;">
+				<a href="{{.VerificationLink}}" class="verify-button">Verify my account →</a>
+			</div>
+			
+			<p>🔒 For your security, this link is only valid for <strong>24 hours</strong>. If you don't verify within this time, you'll need to request a new link.</p>
+			
+			<p>If you didn't create an account with Sweetlife, please disregard this email.</p>
+			
+			<p>Best regards,<br>The Sweetlife Team</p>
+		</div>
+	</body>
+	</html>
