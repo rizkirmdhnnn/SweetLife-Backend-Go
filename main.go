@@ -18,5 +18,5 @@ func main() {
 
 	routers.Routers(router)
 	log.Println("Server started on port", config.ENV.APP_PORT)
-	router.Run(":3000")
+	router.Run(":" + config.ENV.APP_PORT)
 }
