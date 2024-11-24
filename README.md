@@ -3,7 +3,25 @@
 SweetLife is a smart app designed to help people maintain a healthy diet, especially for diabetics or those who care about their health. The app uses an advanced technology called Machine Learning to scan food, provide nutritional information, and recommend food choices that are suitable for each user's needs.
 
 ## Features
-- nanti deh lagi males ngisi
+
+### 1. **Authentication System**
+   - **User Registration**: Users can create an account by providing their email, username, and password.
+   - **Login**: Users can log in using their credentials and receive an access token for further API requests.
+   - **Password Recovery**: Users can reset their password via email if they forget it.
+   - **JWT Authentication**: Uses JSON Web Tokens (JWT) to secure user data and manage sessions.
+
+### 2. **Error Handling**
+   - **405 Method Not Allowed**: Added middleware to automatically handle unsupported HTTP methods, returning a `405 Method Not Allowed` error for routes that don’t accept certain HTTP methods (like `GET` for `/auth/login`).
+   - **404 Not Found**: Proper handling of non-existing routes, returning a `404 Not Found` error when a route does not exist.
+   - **Global Error Handling Middleware**: Ensures consistent error responses across all routes.
+
+### 3. **Protected Routes**
+   - Some routes require authentication, and they are protected using JWT authentication middleware.
+   - Example: Change password, logout, etc.
+
+### 4. **Health Check Endpoint**
+   - `/health`: A simple health check route to check if the backend service is up and running.
+
 
 ## Prerequisites
 
