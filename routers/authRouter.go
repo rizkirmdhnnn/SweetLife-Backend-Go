@@ -32,5 +32,4 @@ func authRouter(r *gin.RouterGroup) {
 	// protected routes
 	prefix.Use(middleware.AuthMiddleware())
 	prefix.POST("/change-password", authHandler.ChangePassword)
-
 }
