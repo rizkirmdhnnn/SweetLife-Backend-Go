@@ -36,34 +36,36 @@ type Env struct {
 }
 
 func LoadEnv() {
+	// Load .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("Warning: .env file not found, using system environment variables")
 	}
 
+	// Load environment variables
 	ENV = Env{
-		APP_HOST: os.Getenv("APP_HOST"),
-		APP_PORT: os.Getenv("APP_PORT"),
-		APP_ENV:  os.Getenv("APP_ENV"),
-		APP_KEY:  os.Getenv("APP_KEY"),
+		APP_HOST: getEnv("APP_HOST", "127.0.0.1"),
+		APP_PORT: getEnv("APP_PORT", "3000"),
+		APP_ENV:  getEnv("APP_ENV", "development"),
+		APP_KEY:  getEnv("APP_KEY", "anakepakyanto"),
 
-		DB_HOST:     os.Getenv("DB_HOST"),
-		DB_PORT:     os.Getenv("DB_PORT"),
-		DB_USER:     os.Getenv("DB_USER"),
-		DB_PASSWORD: os.Getenv("DB_PASSWORD"),
-		DB_NAME:     os.Getenv("DB_NAME"),
+		DB_HOST:     getEnv("DB_HOST", "localhost"),
+		DB_PORT:     getEnv("DB_PORT", "5432"),
+		DB_USER:     getEnv("DB_USER", "postgres"),
+		DB_PASSWORD: getEnv("DB_PASSWORD", ""),
+		DB_NAME:     getEnv("DB_NAME", "sweetlife"),
 
-		JWTSIGNKEY: os.Getenv("JWTSIGNKEY"),
+		JWTSIGNKEY: getEnv("JWTSIGNKEY", "anakepakyanto"),
 
-		MAILGUNKEY:    os.Getenv("MAILGUNKEY"),
-		MAILGUNDOMAIN: os.Getenv("MAILGUNDOMAIN"),
-		MAILFROM:      os.Getenv("MAILFROM"),
+		MAILGUNKEY:    getEnv("MAILGUNKEY", ""),
+		MAILGUNDOMAIN: getEnv("MAILGUNDOMAIN", ""),
+		MAILFROM:      getEnv("MAILFROM", ""),
 
-		STORAGE_BUCKET: os.Getenv("STORAGE_BUCKET"),
-		STORAGE_FOLDER: os.Getenv("STORAGE_FOLDER"),
+		STORAGE_BUCKET: getEnv("STORAGE_BUCKET", ""),
+		STORAGE_FOLDER: getEnv("STORAGE_FOLDER", ""),
 
-		PROJECT_ID:                os.Getenv("PROJECT_ID"),
-		GOOGLE_CREDENTIALS_BASE64: os.Getenv("GOOGLE_CREDENTIALS_BASE64"),
+		PROJECT_ID:                getEnv("PROJECT_ID", ""),
+		GOOGLE_CREDENTIALS_BASE64: getEnv("GOOGLE_CREDENTIALS_BASE64", ""),
 	}
 
 	if ENV.APP_ENV == "development" {
@@ -73,5 +75,12 @@ func LoadEnv() {
 		log.Println("Running in production mode")
 	}
 
-	log.Println("Load server successfully")
+	log.Println("Environment loaded successfully")
+}
+
+func getEnv(key string, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
 }
