@@ -28,7 +28,8 @@ type Env struct {
 	STORAGE_BUCKET string
 	STORAGE_FOLDER string
 
-	PROJECT_ID string
+	PROJECT_ID                string
+	GOOGLE_CREDENTIALS_BASE64 string
 }
 
 var ENV Env

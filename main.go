@@ -11,7 +11,7 @@ import (
 func main() {
 	config.LoadEnv()
 	config.LoadDatabase()
-	config.LoadStorageBucket("config/service-account.json")
+	config.LoadStorageBucket()
 
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/views/*")
