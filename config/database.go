@@ -34,6 +34,9 @@ func LoadDatabase() {
 		models.User{},
 		models.Password_reset_tokens{},
 		models.RefreshToken{},
+		models.HealthProfile{},
+		models.DiabetesDetails{},
+		models.RiskAssessment{},
 	); err != nil {
 		log.Fatal("Failed to migrate table")
 	}
