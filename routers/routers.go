@@ -7,6 +7,7 @@ func Routers(r *gin.Engine) {
 	prefix := r.Group("/api/v1/")
 	authRouter(prefix)
 	userRouter(prefix)
+	healthRouter(prefix)
 
 	// health check
 	r.GET("/health", func(c *gin.Context) {

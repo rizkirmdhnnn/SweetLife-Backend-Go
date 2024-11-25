@@ -28,7 +28,7 @@ const (
 
 type HealthProfile struct {
 	ID              uint          `json:"id" gorm:"primaryKey;autoIncrement"`
-	UserID          string        `json:"user_id" gorm:"type:uuid;not null;index"`
+	UserID          string        `json:"user_id" gorm:"type:uuid;not null;unique;index"`
 	User            User          `json:"user" gorm:"foreignKey:UserID"`
 	Height          float64       `json:"height" gorm:"not null;type:decimal(5,2)"`
 	Weight          float64       `json:"weight" gorm:"not null;type:decimal(5,2)"`
@@ -43,7 +43,7 @@ type HealthProfile struct {
 
 type DiabetesDetails struct {
 	ID            uint          `json:"id" gorm:"primaryKey;autoIncrement"`
-	ProfileID     uint          `json:"profile_id" gorm:"not null;index"`
+	ProfileID     uint          `json:"profile_id" gorm:"not null;index;unique"`
 	Profile       HealthProfile `json:"profile" gorm:"foreignKey:ProfileID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DiabeticType  DiabeticType  `json:"diabetic_type" gorm:"type:varchar(15);not null"`
 	InsulinLevel  float64       `json:"insulin_level" gorm:"not null;type:decimal(6,2)"`
