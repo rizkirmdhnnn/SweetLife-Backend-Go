@@ -30,6 +30,10 @@ func (h *authHandler) Register(c *gin.Context) {
 	// get data from request
 	var req dto.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		if strings.Contains(err.Error(), "Field validation for 'Email'") {
+			errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", "yang bener emailnya lah pantek")
+			return
+		}
 		errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
 		return
 	}
@@ -60,6 +64,10 @@ func (h *authHandler) Login(c *gin.Context) {
 		// check if request body is empty
 		if err.Error() == "EOF" {
 			errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", "request body is empty")
+			return
+		}
+		if strings.Contains(err.Error(), "Field validation for 'Email'") {
+			errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", "yang bener emailnya lah pantek")
 			return
 		}
 		errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
@@ -132,6 +140,10 @@ func (h *authHandler) ForgotPassword(c *gin.Context) {
 	// get data from request
 	var req dto.ForgotPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		if strings.Contains(err.Error(), "Field validation for 'Email'") {
+			errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", "yang bener emailnya lah pantek")
+			return
+		}
 		errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
 		return
 	}
