@@ -125,7 +125,7 @@ func (r *authRepository) DeleteUserById(id string) error {
 // GetUserById implements AuthRepository.
 func (r *authRepository) GetUserById(id string) (*models.User, error) {
 	var user models.User
-	err := r.db.Raw("SELECT id, email, password, name, verified_at, gender FROM users WHERE id = ?", id).Scan(&user).Error
+	err := r.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

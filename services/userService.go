@@ -52,6 +52,7 @@ func (u *userService) UpdateProfile(id, urlPhotoProfile string, req *dto.UpdateU
 	user.Gender = req.Gender
 	user.Updated_at = time.Now()
 	user.ImageUrl = urlPhotoProfile
+	user.Age, _ = helper.CalculateAge(date.Format("2006-01-02"))
 
 	// save user
 	err = u.userRepo.Update(user)

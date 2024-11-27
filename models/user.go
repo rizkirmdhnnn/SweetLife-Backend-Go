@@ -28,6 +28,7 @@ type User struct {
 	Email       string     `json:"email" gorm:"type:varchar(100);uniqueIndex; not null"`
 	Password    string     `json:"password" gorm:"type:varchar(255)"`
 	DateOfBirth time.Time  `gorm:"type:date" json:"date_of_birth"`
+	Age         int        `json:"age"`
 	Gender      string     `json:"gender" gorm:"type:varchar(10)"`
 	ImageUrl    string     `json:"image_url" gorm:"type:text;default:null"`
 	Verified_at *time.Time `json:"verified_at" gorm:"default:null"`
