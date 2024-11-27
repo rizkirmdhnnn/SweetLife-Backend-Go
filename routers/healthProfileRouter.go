@@ -20,4 +20,6 @@ func healthRouter(r *gin.RouterGroup) {
 	prefix := r.Group("/users/health")
 	prefix.Use(middleware.AuthMiddleware())
 	prefix.POST("/", healthHandler.CreateHealthProfile)
+
+	// TODO: update health profile
 }

@@ -26,19 +26,28 @@ const (
 	HighRisk   RiskLevelType = "high"
 )
 
+type SmokingHistory string
+
+const (
+	Never   SmokingHistory = "never"
+	Current SmokingHistory = "current"
+	Former  SmokingHistory = "former"
+	Ever    SmokingHistory = "ever"
+)
+
 type HealthProfile struct {
-	ID              uint          `json:"id" gorm:"primaryKey;autoIncrement"`
-	UserID          string        `json:"user_id" gorm:"type:uuid;not null;unique;index"`
-	User            User          `json:"user" gorm:"foreignKey:UserID"`
-	Height          float64       `json:"height" gorm:"not null;type:decimal(5,2)"`
-	Weight          float64       `json:"weight" gorm:"not null;type:decimal(5,2)"`
-	BMI             float64       `json:"bmi" gorm:"not null;type:decimal(4,2)"`
-	IsDiabetic      bool          `json:"is_diabetic" gorm:"not null;default:false"`
-	IsSmoker        bool          `json:"is_smoker" gorm:"not null;default:false"`
-	HasHeartDisease bool          `json:"has_heart_disease" gorm:"not null;default:false"`
-	ActivityLevel   ActivityLevel `json:"activity_level" gorm:"type:varchar(10);not null"`
-	CreatedAt       time.Time     `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt       time.Time     `json:"updated_at" gorm:"autoUpdateTime"`
+	ID              uint           `json:"id" gorm:"primaryKey;autoIncrement"`
+	UserID          string         `json:"user_id" gorm:"type:uuid;not null;unique;index"`
+	User            User           `json:"user" gorm:"foreignKey:UserID"`
+	Height          float64        `json:"height" gorm:"not null;type:decimal(5,2)"`
+	Weight          float64        `json:"weight" gorm:"not null;type:decimal(5,2)"`
+	BMI             float64        `json:"bmi" gorm:"not null;type:decimal(4,2)"`
+	IsDiabetic      bool           `json:"is_diabetic" gorm:"not null;default:false"`
+	SmokingHistory  SmokingHistory `json:"smoking_history" gorm:"type:varchar(10);not null"`
+	HasHeartDisease bool           `json:"has_heart_disease" gorm:"not null;default:false"`
+	ActivityLevel   ActivityLevel  `json:"activity_level" gorm:"type:varchar(10);not null"`
+	CreatedAt       time.Time      `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt       time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
 type DiabetesDetails struct {

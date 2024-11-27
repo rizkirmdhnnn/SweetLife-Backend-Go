@@ -42,7 +42,7 @@ func (h *healthProfileService) CreateHealthProfile(profile *dto.HealthProfileDto
 		Height:          profile.Height,
 		Weight:          profile.Weight,
 		IsDiabetic:      profile.IsDiabetic,
-		IsSmoker:        profile.IsSmoker,
+		SmokingHistory:  profile.SmokingHistory,
 		HasHeartDisease: profile.HasHeartDisease,
 		ActivityLevel:   profile.ActivityLevel,
 	}
