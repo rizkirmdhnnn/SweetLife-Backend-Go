@@ -105,12 +105,12 @@ func (r *recomendationService) GetExerciseRecomendations(userid string) (*dto.Ex
 			Image: "https://example.com/deadlifts.jpg",
 		},
 		{
-			Name:  "Bench Presses",
+			Name:  "Bench presses",
 			Desc:  "A strength exercise using a barbell or dumbbells, typically performed while lying on a bench. It focuses on strengthening the chest, shoulders, and triceps.",
 			Image: "https://example.com/bench_presses.jpg",
 		},
 		{
-			Name:  "Overhead Presses",
+			Name:  "Overhead presses",
 			Desc:  "A weightlifting exercise where you push a weight overhead from your shoulders. It helps train the shoulder muscles, triceps, and core stability.",
 			Image: "https://example.com/overhead_presses.jpg",
 		},
@@ -120,7 +120,7 @@ func (r *recomendationService) GetExerciseRecomendations(userid string) (*dto.Ex
 			Image: "https://example.com/yoga.jpg",
 		},
 		{
-			Name:  "Brisk Walking",
+			Name:  "Brisk walking",
 			Desc:  "A fast-paced walk aimed at increasing heart rate. It's beneficial for heart health, calorie burning, and general fitness.",
 			Image: "https://example.com/brisk_walking.jpg",
 		},
