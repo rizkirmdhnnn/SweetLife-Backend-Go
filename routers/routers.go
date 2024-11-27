@@ -15,7 +15,8 @@ func Routers(r *gin.Engine) {
 	// dummy route
 	prefix.GET("/dashboard", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"status": "success",
+			"status":  true,
+			"message": "Welcome to SweetLife Dashboard",
 			"data": gin.H{
 				"user": gin.H{
 					"name":         "Jokowi",
