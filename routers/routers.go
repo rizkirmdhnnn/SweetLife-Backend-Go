@@ -1,6 +1,8 @@
 package routers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 // Routers is a function to define all the routes
 func Routers(r *gin.Engine) {
@@ -8,6 +10,7 @@ func Routers(r *gin.Engine) {
 	authRouter(prefix)
 	userRouter(prefix)
 	healthRouter(prefix)
+	recomendationRouter(prefix)
 
 	// health check
 	r.GET("/health", func(c *gin.Context) {

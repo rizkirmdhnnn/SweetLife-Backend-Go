@@ -11,7 +11,7 @@ import (
 )
 
 type RecomendationRepo interface {
-	GetFoodRecomendations(diabetPercentage float32) ([]*dto.FoodRecomendationClientResp, error)
+	GetFoodRecomendations(diabetPercentage float32) (*dto.FoodRecomendationClientResp, error)
 	//TODO: Get Exercice recomendation
 	// GetExerciceRecomendations(diabetPercentage float32) ([]*dto.ExerciseRecommendationClientResp, error)
 	DiabetesPrediction(data *dto.DiabetesPredictionRequest) (*dto.DiabetesPredictionClientResp, error)
@@ -30,7 +30,7 @@ func NewRecomendationRepo(httpClient *http.Client) RecomendationRepo {
 	}
 }
 
-func (r *recomendationRepo) GetFoodRecomendations(diabetPercentage float32) ([]*dto.FoodRecomendationClientResp, error) {
+func (r *recomendationRepo) GetFoodRecomendations(diabetPercentage float32) (*dto.FoodRecomendationClientResp, error) {
 	data := map[string]interface{}{
 		"diabetes_percentage": diabetPercentage,
 	}
@@ -41,10 +41,14 @@ func (r *recomendationRepo) GetFoodRecomendations(diabetPercentage float32) ([]*
 		return nil, err
 	}
 
+	fmt.Print("Request Body: ")
+
 	resp, err := r.httpClient.Post("https://ml.sweetlife.my.id//food_recommendation", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("Response Status:", resp.Status)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -52,14 +56,17 @@ func (r *recomendationRepo) GetFoodRecomendations(diabetPercentage float32) ([]*
 		return nil, err
 	}
 
-	var recomendation []*dto.FoodRecomendationClientResp
+	// Decode JSON ke dalam struktur Go
+	var recomendation dto.FoodRecomendationClientResp
 	err = json.Unmarshal(body, &recomendation)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
 		return nil, err
 	}
 
-	return recomendation, nil
+	fmt.Println("Recomendation:", recomendation)
+
+	return &recomendation, nil
 }
 
 func (r *recomendationRepo) DiabetesPrediction(data *dto.DiabetesPredictionRequest) (*dto.DiabetesPredictionClientResp, error) {
