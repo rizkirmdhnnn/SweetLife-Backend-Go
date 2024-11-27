@@ -13,14 +13,16 @@ type HealthProfileService interface {
 }
 
 type healthProfileService struct {
-	healthRepo repositories.HealthProfileRepository
-	authRepo   repositories.AuthRepository
+	healthRepo   repositories.HealthProfileRepository
+	authRepo     repositories.AuthRepository
+	recomendRepo repositories.RecomendationRepo
 }
 
-func NewHealthProfileService(healthRepo repositories.HealthProfileRepository, authRepo repositories.AuthRepository) HealthProfileService {
+func NewHealthProfileService(healthRepo repositories.HealthProfileRepository, authRepo repositories.AuthRepository, recomend repositories.RecomendationRepo) HealthProfileService {
 	return &healthProfileService{
-		healthRepo: healthRepo,
-		authRepo:   authRepo,
+		healthRepo:   healthRepo,
+		authRepo:     authRepo,
+		recomendRepo: recomend,
 	}
 }
 
@@ -31,7 +33,7 @@ func (h *healthProfileService) CreateHealthProfile(profile *dto.HealthProfileDto
 	}
 
 	//find user by id
-	_, err := h.authRepo.GetUserById(profile.UserID)
+	userData, err := h.authRepo.GetUserById(profile.UserID)
 	if err != nil {
 		return err
 	}
@@ -62,6 +64,35 @@ func (h *healthProfileService) CreateHealthProfile(profile *dto.HealthProfileDto
 			BloodPressure: profile.BloodPressure,
 		}
 		if err := h.healthRepo.CreateDiabetesDetails(&diabetesData); err != nil {
+			return err
+		}
+	}
+
+	if !profile.IsDiabetic {
+		// predict diabetes risk
+		predictionData := dto.DiabetesPredictionRequest{
+			SmokingHistory: string(profile.SmokingHistory),
+			BMI:            data.BMI,
+			Age:            userData.Age,
+			HeartDisease:   profile.HasHeartDisease,
+			Gender:         userData.Gender,
+		}
+
+		Prediction, err := h.recomendRepo.DiabetesPrediction(&predictionData)
+		if err != nil {
+			return err
+		}
+
+		// fmt.Print(Prediction)
+
+		// save risk assessment
+		riskData := models.RiskAssessment{
+			ProfileID: data.ID,
+			RiskScore: Prediction.Percentage,
+			Note:      Prediction.Note,
+		}
+
+		if err := h.healthRepo.CreateRiskAssessment(&riskData); err != nil {
 			return err
 		}
 	}

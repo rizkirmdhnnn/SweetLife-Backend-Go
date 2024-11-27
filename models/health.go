@@ -62,13 +62,14 @@ type DiabetesDetails struct {
 }
 
 type RiskAssessment struct {
-	ID         uint            `json:"id" gorm:"primaryKey;autoIncrement"`
-	ProfileID  uint            `json:"profile_id" gorm:"not null;index"`
-	Profile    HealthProfile   `json:"profile" gorm:"foreignKey:ProfileID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	DiabetesID uint            `json:"diabetes_id" gorm:"index"`
-	Diabetes   DiabetesDetails `json:"diabetes" gorm:"foreignKey:DiabetesID"`
-	RiskLevel  RiskLevelType   `json:"risk_level" gorm:"type:varchar(10);not null"`
-	RiskScore  float64         `json:"risk_score" gorm:"not null;type:decimal(5,2)"`
-	CreatedAt  time.Time       `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt  time.Time       `json:"updated_at" gorm:"autoUpdateTime"`
+	ID         uint             `json:"id" gorm:"primaryKey;autoIncrement"`
+	ProfileID  uint             `json:"profile_id" gorm:"not null;index"`
+	Profile    HealthProfile    `json:"profile" gorm:"foreignKey:ProfileID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	DiabetesID *uint            `json:"diabetes_id" gorm:"index"`
+	Diabetes   *DiabetesDetails `json:"diabetes" gorm:"foreignKey:DiabetesID"`
+	RiskLevel  RiskLevelType    `json:"risk_level" gorm:"type:varchar(10);not null"`
+	RiskScore  float64          `json:"risk_score" gorm:"not null;type:decimal(5,2)"`
+	Note       string           `json:"note" gorm:"type:text"`
+	CreatedAt  time.Time        `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt  time.Time        `json:"updated_at" gorm:"autoUpdateTime"`
 }

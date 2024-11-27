@@ -8,8 +8,8 @@ import (
 type HealthProfileRepository interface {
 	CreateHealthProfile(profile *models.HealthProfile) error
 	CreateDiabetesDetails(details *models.DiabetesDetails) error
+	CreateRiskAssessment(assessment *models.RiskAssessment) error
 }
-
 type healthProfileRepository struct {
 	db *gorm.DB
 }
@@ -35,6 +35,15 @@ func (h *healthProfileRepository) CreateHealthProfile(profile *models.HealthProf
 // CreateDiabetesDetails implements HealthProfileRepository.
 func (h *healthProfileRepository) CreateDiabetesDetails(details *models.DiabetesDetails) error {
 	err := h.db.Create(&details).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateRiskAssessment implements HealthProfileRepository.
+func (h *healthProfileRepository) CreateRiskAssessment(assessment *models.RiskAssessment) error {
+	err := h.db.Create(&assessment).Error
 	if err != nil {
 		return err
 	}

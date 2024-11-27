@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/config"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/handlers"
@@ -11,9 +13,11 @@ import (
 
 func healthRouter(r *gin.RouterGroup) {
 	//initialize dependencies
+	httpClient := http.Client{}
 	healthRepo := repositories.NewHealthProfileRepository(config.DB)
 	authRepo := repositories.NewAuthRepository(config.DB)
-	healthService := services.NewHealthProfileService(healthRepo, authRepo)
+	recomendRepo := repositories.NewRecomendationRepo(&httpClient)
+	healthService := services.NewHealthProfileService(healthRepo, authRepo, recomendRepo)
 	healthHandler := handlers.NewHealthProfileHandler(healthService)
 
 	// user routes
