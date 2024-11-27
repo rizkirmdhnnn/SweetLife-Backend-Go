@@ -10,6 +10,7 @@ type HealthProfileRepository interface {
 	CreateDiabetesDetails(details *models.DiabetesDetails) error
 	CreateRiskAssessment(assessment *models.RiskAssessment) error
 	GetRiskAssessmentByUserID(userID string) (*models.RiskAssessment, error)
+	GetHealthProfileByUserID(userID string) (*models.HealthProfile, error)
 }
 type healthProfileRepository struct {
 	db *gorm.DB
@@ -67,4 +68,14 @@ func (h *healthProfileRepository) GetRiskAssessmentByUserID(userID string) (*mod
 	}
 
 	return &assessment, nil
+}
+
+// GetHealthProfileByUserID implements HealthProfileRepository.
+func (h *healthProfileRepository) GetHealthProfileByUserID(userID string) (*models.HealthProfile, error) {
+	var healthProfile models.HealthProfile
+	err := h.db.Where("user_id = ?", userID).First(&healthProfile).Error
+	if err != nil {
+		return nil, err
+	}
+	return &healthProfile, nil
 }

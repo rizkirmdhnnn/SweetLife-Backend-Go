@@ -16,7 +16,8 @@ func recomendationRouter(r *gin.RouterGroup) {
 	httpClient := http.Client{}
 	recomendationRepo := repositories.NewRecomendationRepo(&httpClient)
 	healthRepo := repositories.NewHealthProfileRepository(config.DB)
-	recomendationService := services.NewRecomendationService(recomendationRepo, healthRepo)
+	authRepo := repositories.NewAuthRepository(config.DB)
+	recomendationService := services.NewRecomendationService(recomendationRepo, healthRepo, authRepo)
 	recomendationHandler := handlers.NewRecomendationHandler(recomendationService)
 	// user routes
 

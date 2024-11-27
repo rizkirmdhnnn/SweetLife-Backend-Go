@@ -31,10 +31,16 @@ func (r *RecomendationHandler) GetRecomendations(c *gin.Context) {
 		return
 	}
 
+	// get exercise recomendations
+	exerciseRecomendations, err := r.recomendationService.GetExerciseRecomendations(userID)
+	if err != nil {
+		errors.SendErrorResponse(c, http.StatusInternalServerError, "Failed to get recomendations", err.Error())
+		return
+	}
+
 	resp := dto.RecomendationDto{
-		FoodRecomendation: foodRecomendations,
-		//TODO: implement exercise recomendation
-		ExerciseRecommendations: nil,
+		FoodRecomendation:       foodRecomendations,
+		ExerciseRecommendations: exerciseRecomendations,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
