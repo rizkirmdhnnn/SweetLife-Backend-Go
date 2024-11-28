@@ -35,6 +35,7 @@ func (r *recomendationService) GetFoodRecomendations(userid string) ([]*dto.Food
 	//get risk percentage
 	healthProfile, err := r.healthRepo.GetRiskAssessmentByUserID(userid)
 	if err != nil {
+		//TODO: if user not found
 		return nil, err
 	}
 
@@ -69,6 +70,7 @@ func (r *recomendationService) GetExerciseRecomendations(userid string) (*dto.Ex
 	// get user health profile
 	healthProfile, err := r.healthRepo.GetHealthProfileByUserID(userid)
 	if err != nil {
+		//TODO: if user not found
 		return nil, err
 	}
 
@@ -76,6 +78,10 @@ func (r *recomendationService) GetExerciseRecomendations(userid string) (*dto.Ex
 	userProfile, err := r.authRepo.GetUserById(userid)
 	if err != nil {
 		return nil, err
+	}
+
+	if userProfile.Age == 0 || userProfile.DateOfBirth.IsZero() {
+		return nil, fmt.Errorf("please update your profile")
 	}
 
 	// create request

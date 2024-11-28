@@ -2,7 +2,10 @@ package services
 
 import (
 	"context"
+	"errors"
 	"mime/multipart"
+	"net/url"
+	"strings"
 
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/config"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/repositories"
@@ -44,7 +47,28 @@ func (s *storageBucketService) UploadFile(file *multipart.FileHeader, path, file
 }
 
 // DeleteFile implements StorageBucketService.
-func (s *storageBucketService) DeleteFile(path string) error {
-	// TODO: delete file from storage
-	panic("unimplemented")
+func (s *storageBucketService) DeleteFile(fileURL string) error {
+	// Parse the URL to get the file path
+	u, err := url.Parse(fileURL)
+	if err != nil {
+		return errors.New("invalid file URL")
+	}
+
+	// Ensure the URL belongs to the bucket
+	if !strings.Contains(u.Host, "storage.googleapis.com") {
+		return errors.New("file URL is not from Google Cloud Storage")
+	}
+
+	// Extract the file path from the URL
+	filePath := strings.TrimPrefix(u.Path, "/sweetlife-go/") // Replace with your bucket root
+	if filePath == "" {
+		return errors.New("invalid file path")
+	}
+
+	// Delete the file
+	if err := s.storageRepo.DeleteFile(context.Background(), config.ENV.STORAGE_BUCKET, filePath); err != nil {
+		return err
+	}
+
+	return nil
 }

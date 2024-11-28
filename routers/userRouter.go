@@ -14,7 +14,7 @@ func userRouter(r *gin.RouterGroup) {
 	userRepo := repositories.NewUserRepository(config.DB)
 	authRepo := repositories.NewAuthRepository(config.DB)
 	storageRepo := repositories.NewStorageBucketService(config.Client)
-	userService := services.NewUserService(userRepo, authRepo)
+	userService := services.NewUserService(userRepo, authRepo, storageRepo)
 	storageService := services.NewStorageBucketService(storageRepo)
 	userHandler := handlers.NewUserHandler(userService, storageService)
 

@@ -2,12 +2,10 @@ package handlers
 
 import (
 	"net/http"
-	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/dto"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/errors"
-	helper "github.com/rizkirmdhnnn/sweetlife-backend-go/helpers"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/services"
 )
 
@@ -40,27 +38,17 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	// Process profile picture (optional)
-	file, err := c.FormFile("profile_picture")
-	var profilePictureURL string
-
-	// check if profile picture is uploaded
-	if err == nil {
-		// Generate a unique file name
-		fileName := helper.GenerateFileName(filepath.Ext(file.Filename))
-		uploadPath := "website/photo-profile/"
-
-		// save to cloud storage
-		profilePictureURL, err = h.storageService.UploadFile(file, uploadPath, fileName)
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload profile picture", "details": err.Error()})
+	photoProfile, _ := c.FormFile("profile_picture")
+	// check if format not jpg or png
+	if photoProfile != nil {
+		if photoProfile.Header.Get("Content-Type") != "image/jpeg" && photoProfile.Header.Get("Content-Type") != "image/png" {
+			errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", "Profile picture must be in jpg or png format")
 			return
 		}
 	}
 
 	// call service to update user
-	err = h.userService.UpdateProfile(userID, profilePictureURL, &req)
+	err := h.userService.UpdateProfile(userID, photoProfile, &req)
 	if err != nil {
 		errors.SendErrorResponse(c, http.StatusInternalServerError, "failed to update user", err.Error())
 		return
