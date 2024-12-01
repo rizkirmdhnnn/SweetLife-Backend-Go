@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/dto"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/models"
@@ -10,6 +11,7 @@ import (
 
 type HealthProfileService interface {
 	CreateHealthProfile(profile *dto.HealthProfileDto) error
+	GetHealthProfile(userID string) (*dto.HealthProfileResponse, error)
 }
 
 type healthProfileService struct {
@@ -24,6 +26,58 @@ func NewHealthProfileService(healthRepo repositories.HealthProfileRepository, au
 		authRepo:     authRepo,
 		recomendRepo: recomend,
 	}
+}
+
+// GetHealthProfile implements HealthProfileService.
+func (h *healthProfileService) GetHealthProfile(userID string) (*dto.HealthProfileResponse, error) {
+	// find user by id
+	user, err := h.authRepo.GetUserById(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// get health profile
+	healthProfile, err := h.healthRepo.GetHealthProfileByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := dto.HealthProfileResponse{
+		UserID:          healthProfile.UserID,
+		Height:          healthProfile.Height,
+		Weight:          healthProfile.Weight,
+		IsDiabetic:      healthProfile.IsDiabetic,
+		SmokingHistory:  healthProfile.SmokingHistory,
+		HasHeartDisease: healthProfile.HasHeartDisease,
+		ActivityLevel:   healthProfile.ActivityLevel,
+	}
+
+	// if user is diabetic, get diabetes details
+	if healthProfile.IsDiabetic {
+		diabetesDetails, err := h.healthRepo.GetDiabetesDetailsByProfileID(fmt.Sprintf("%d", healthProfile.ID))
+		if err != nil {
+			return nil, err
+		}
+		resp.DiabetesDetails = &dto.DiabetesDetails{
+			DiabeticType:  diabetesDetails.DiabeticType,
+			InsulinLevel:  diabetesDetails.InsulinLevel,
+			BloodPressure: diabetesDetails.BloodPressure,
+		}
+	}
+
+	//get assessment
+	riskAssessment, err := h.healthRepo.GetRiskAssessmentByUserID(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp.DiabetesPrediction = dto.DiabetesPrediction{
+		RiskPercentage: riskAssessment.RiskScore,
+		RiskLevel:      "aman|sedang|tinggi",
+		Note:           riskAssessment.Note,
+	}
+
+	return &resp, nil
 }
 
 // CreateHealthProfile implements HealthProfileService.

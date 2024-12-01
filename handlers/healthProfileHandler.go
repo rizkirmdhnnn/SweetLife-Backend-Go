@@ -45,3 +45,23 @@ func (h *HealthProfileHandler) CreateHealthProfile(c *gin.Context) {
 		"message": "action success",
 	})
 }
+
+// GetHealthProfile is a handler to get health profile
+func (h *HealthProfileHandler) GetHealthProfile(c *gin.Context) {
+	// get userID from context
+	userID := c.GetString("userID")
+
+	// call service to get health profile
+	profile, err := h.healthProfileService.GetHealthProfile(userID)
+	if err != nil {
+		errors.SendErrorResponse(c, http.StatusInternalServerError, "Failed to get health profile", err.Error())
+		return
+	}
+
+	// give success response
+	c.JSON(http.StatusOK, gin.H{
+		"status":  true,
+		"message": "action success",
+		"data":    profile,
+	})
+}
