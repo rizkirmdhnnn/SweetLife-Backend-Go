@@ -11,6 +11,7 @@ func Routers(r *gin.Engine) {
 	userRouter(prefix)
 	healthRouter(prefix)
 	recomendationRouter(prefix)
+	scanFoodRouter(prefix)
 
 	// dummy route
 	prefix.GET("/dashboard", func(c *gin.Context) {
