@@ -72,8 +72,8 @@ func (s *scanFoodService) ScanFood(file *multipart.FileHeader) (*dto.ScanFoodRes
 
 	// Group food items by name and calculate total amount
 	foodTotals := make(map[string]int)
-	for _, food := range scanFoodResponse.Data {
-		foodTotals[food.Name] += food.Total
+	for _, food := range scanFoodResponse.Objects {
+		foodTotals[food.Name] += food.Unit
 	}
 
 	// Create response

@@ -32,7 +32,7 @@ func (s *scanFoodRepository) ScanFood(image string) (*dto.ScanFoodClientResp, er
 		return nil, err
 	}
 
-	resp, err := s.httpClient.Post("https://mock.apidog.com/m1/739297-716037-3350759e/scan_food", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := s.httpClient.Post("https://ml.sweetlife.my.id/scan-food", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}

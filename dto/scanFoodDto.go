@@ -1,12 +1,12 @@
 package dto
 
 type ScanFoodClientResp struct {
-	Data []ScanFood `json:"data"`
+	Objects []ScanFood `json:"objects"`
 }
 
 type ScanFood struct {
-	Name  string `json:"name"`
-	Total int    `json:"total"`
+	Name string `json:"name"`
+	Unit int    `json:"unit"`
 }
 
 type ScanFoodResponse struct {
