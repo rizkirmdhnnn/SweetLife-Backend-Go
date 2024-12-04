@@ -65,3 +65,31 @@ func (h *HealthProfileHandler) GetHealthProfile(c *gin.Context) {
 		"data":    profile,
 	})
 }
+
+// UpdateHealthProfile is a handler to update health profile
+func (h *HealthProfileHandler) UpdateHealthProfile(c *gin.Context) {
+	// get userID from context
+	userID := c.GetString("userID")
+
+	// get data from request
+	var req dto.HealthProfileDto
+	if err := c.ShouldBind(&req); err != nil {
+		errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
+		return
+	}
+
+	// set userID
+	req.UserID = userID
+
+	// call service to update health profile
+	if err := h.healthProfileService.UpdateHealthProfile(&req); err != nil {
+		errors.SendErrorResponse(c, http.StatusInternalServerError, "Failed to update health profile", err.Error())
+		return
+	}
+
+	// give success response
+	c.JSON(http.StatusOK, gin.H{
+		"status":  true,
+		"message": "action success",
+	})
+}

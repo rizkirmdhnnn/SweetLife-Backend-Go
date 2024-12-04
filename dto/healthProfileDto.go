@@ -31,7 +31,6 @@ type DiabetesDetails struct {
 }
 
 type HealthProfileResponse struct {
-	UserID             string                `json:"user_id"`
 	Height             float64               `json:"height"`
 	Weight             float64               `json:"weight"`
 	IsDiabetic         bool                  `json:"is_diabetic"`
@@ -39,5 +38,5 @@ type HealthProfileResponse struct {
 	SmokingHistory     models.SmokingHistory `json:"smoking_history"`
 	HasHeartDisease    bool                  `json:"has_heart_disease"`
 	ActivityLevel      models.ActivityLevel  `json:"activity_level"`
-	DiabetesPrediction DiabetesPrediction    `json:"diabetes_prediction"`
+	DiabetesPrediction *DiabetesPrediction   `json:"diabetes_prediction,omitempty"`
 }
