@@ -16,7 +16,7 @@ type ScanFoodResponse struct {
 
 type FoodList struct {
 	Name         string  `json:"name"`
-	Amount       int     `json:"amount"`
+	Unit         int     `json:"unit"`
 	Weight       float64 `json:"weight"`
 	Calories     float64 `json:"calories"`
 	Protein      float64 `json:"protein"`

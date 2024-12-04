@@ -94,7 +94,7 @@ func (s *scanFoodService) ScanFood(file *multipart.FileHeader) (*dto.ScanFoodRes
 		// Multiply nutrition values by total
 		response.FoodList = append(response.FoodList, dto.FoodList{
 			Name:         name,
-			Amount:       total,
+			Unit:         total,
 			Weight:       nutrition.Berat * float64(total),
 			Calories:     nutrition.Kalori * float64(total),
 			Protein:      nutrition.Protein * float64(total),
