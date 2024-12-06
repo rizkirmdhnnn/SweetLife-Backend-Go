@@ -29,17 +29,19 @@ type AuthService interface {
 }
 
 type authService struct {
-	repository repositories.AuthRepository
-	email      email.EmailClient
+	repository    repositories.AuthRepository
+	email         email.EmailClient
+	healthProfile repositories.HealthProfileRepository
 }
 
-func NewAuthService(r repositories.AuthRepository, emailClient email.EmailClient) AuthService {
+func NewAuthService(r repositories.AuthRepository, healthProfile repositories.HealthProfileRepository, emailClient email.EmailClient) AuthService {
 	if r == nil {
 		panic("repository cannot be nil")
 	}
 	return &authService{
-		repository: r,
-		email:      emailClient,
+		repository:    r,
+		healthProfile: healthProfile,
+		email:         emailClient,
 	}
 }
 
@@ -64,6 +66,12 @@ func (s *authService) Login(req *dto.LoginRequest, info *dto.DeviceInfo) (*dto.L
 	existingTokens, err := s.repository.GetListRefreshToken(user.ID)
 	if err != nil {
 		existingTokens = nil // Tidak ada token ditemukan
+	}
+
+	// check health profile
+	healthProfile, err := s.healthProfile.CheckHealthProfileExist(user.ID)
+	if err != nil {
+		return nil, errors.ErrInternalServer()
 	}
 
 	// Cari token yang sesuai
@@ -98,15 +106,15 @@ func (s *authService) Login(req *dto.LoginRequest, info *dto.DeviceInfo) (*dto.L
 		}
 
 		// Berikan respons
-		return createLoginResponse(user, accessToken, tokenToUpdate.RefreshToken), nil
+		return createLoginResponse(user, accessToken, tokenToUpdate.RefreshToken, healthProfile), nil
 	}
 
 	// Jika tidak ada token valid atau revoked, buat token baru
-	return s.createNewTokens(user, info)
+	return s.createNewTokens(user, info, healthProfile)
 }
 
 // createNewTokens membuat token baru dan menyimpannya ke database
-func (s *authService) createNewTokens(user *models.User, info *dto.DeviceInfo) (*dto.LoginResponse, error) {
+func (s *authService) createNewTokens(user *models.User, info *dto.DeviceInfo, healthProfile bool) (*dto.LoginResponse, error) {
 	// Generate refresh token
 	refreshToken, err := helper.GenerateTokenRefresh(user)
 	if err != nil {
@@ -139,11 +147,11 @@ func (s *authService) createNewTokens(user *models.User, info *dto.DeviceInfo) (
 	}
 
 	// Berikan respons
-	return createLoginResponse(user, accessToken, refreshToken), nil
+	return createLoginResponse(user, accessToken, refreshToken, healthProfile), nil
 }
 
 // createLoginResponse membuat respons login
-func createLoginResponse(user *models.User, accessToken, refreshToken string) *dto.LoginResponse {
+func createLoginResponse(user *models.User, accessToken, refreshToken string, healthProfile bool) *dto.LoginResponse {
 	return &dto.LoginResponse{
 		Token: dto.TokenResponse{
 			AccessToken:  accessToken,
@@ -152,11 +160,12 @@ func createLoginResponse(user *models.User, accessToken, refreshToken string) *d
 		},
 
 		User: dto.UserResponse{
-			ID:          user.ID,
-			Name:        user.Name,
-			Email:       user.Email,
-			Gender:      user.Gender,
-			DateOfBirth: user.DateOfBirth.Format("2006-01-02"),
+			ID:               user.ID,
+			Name:             user.Name,
+			Email:            user.Email,
+			Gender:           user.Gender,
+			HasHealthProfile: healthProfile,
+			DateOfBirth:      user.DateOfBirth.Format("2006-01-02"),
 		},
 	}
 }

@@ -19,6 +19,8 @@ type HealthProfileRepository interface {
 
 	DeleteDiabetesDetails(details *models.DiabetesDetails) error
 	DeleteAssessment(assessment *models.RiskAssessment) error
+
+	CheckHealthProfileExist(userID string) (bool, error)
 }
 type healthProfileRepository struct {
 	db *gorm.DB
@@ -140,4 +142,14 @@ func (h *healthProfileRepository) DeleteAssessment(assessment *models.RiskAssess
 		return err
 	}
 	return nil
+}
+
+// CheckHealthProfileExist implements HealthProfileRepository.
+func (h *healthProfileRepository) CheckHealthProfileExist(userID string) (bool, error) {
+	var healthProfile models.HealthProfile
+	err := h.db.Where("user_id = ?", userID).First(&healthProfile).Error
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

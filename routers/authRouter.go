@@ -15,7 +15,8 @@ func authRouter(r *gin.RouterGroup) {
 	// initialize dependencies
 	authRepo := repositories.NewAuthRepository(config.DB)
 	emailClient := email.NewEmailClient(config.ENV.MAILGUNDOMAIN, config.ENV.MAILGUNKEY, config.ENV.MAILFROM)
-	authService := services.NewAuthService(authRepo, emailClient)
+	healthRepo := repositories.NewHealthProfileRepository(config.DB)
+	authService := services.NewAuthService(authRepo, healthRepo, emailClient)
 	authHandler := handlers.NewAuthHandler(authService)
 
 	// auth routes
