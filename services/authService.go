@@ -69,10 +69,7 @@ func (s *authService) Login(req *dto.LoginRequest, info *dto.DeviceInfo) (*dto.L
 	}
 
 	// check health profile
-	healthProfile, err := s.healthProfile.CheckHealthProfileExist(user.ID)
-	if err != nil {
-		return nil, errors.ErrInternalServer()
-	}
+	healthProfile, _ := s.healthProfile.CheckHealthProfileExist(user.ID)
 
 	// Cari token yang sesuai
 	var tokenToUpdate *models.RefreshToken
