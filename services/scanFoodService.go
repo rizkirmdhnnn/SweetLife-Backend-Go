@@ -19,6 +19,7 @@ import (
 
 type ScanFoodService interface {
 	ScanFood(file *multipart.FileHeader) (*dto.ScanFoodResponse, error)
+	SearchFood(req *dto.FindFoodRequest) (*models.ScanFood, error)
 }
 
 type scanFoodService struct {
@@ -93,14 +94,12 @@ func (s *scanFoodService) ScanFood(file *multipart.FileHeader) (*dto.ScanFoodRes
 
 		// Multiply nutrition values by total
 		response.FoodList = append(response.FoodList, dto.FoodList{
-			Name:         name,
+			Name:         nutrition.Name,
 			Unit:         total,
-			Weight:       nutrition.Berat * float64(total),
-			Calories:     nutrition.Kalori * float64(total),
 			Protein:      nutrition.Protein * float64(total),
-			Sugar:        nutrition.Gula * float64(total),
-			Carbohydrate: nutrition.Karbohidrat * float64(total),
-			Fat:          nutrition.Lemak * float64(total),
+			Sugar:        nutrition.Sugar * float64(total),
+			Carbohydrate: nutrition.Carbohydrates * float64(total),
+			Fat:          nutrition.Fat * float64(total),
 		})
 	}
 
@@ -110,9 +109,72 @@ func (s *scanFoodService) ScanFood(file *multipart.FileHeader) (*dto.ScanFoodRes
 // Helper functions
 func findFoodByName(foods []models.ScanFood, name string) (*models.ScanFood, error) {
 	for _, food := range foods {
-		if strings.EqualFold(food.Name, name) {
+		if strings.EqualFold(*food.NameIndo, name) {
 			return &food, nil
 		}
 	}
 	return nil, fmt.Errorf("food %s not found", name)
+}
+
+// SearchFoodByName implements ScanFoodService.
+func (s *scanFoodService) SearchFood(req *dto.FindFoodRequest) (*models.ScanFood, error) {
+	// 1. find food by name from database where name = name and weight = weight
+	food, err := s.scanRepo.SearchFoodFromDB(req.Name)
+	if err != nil {
+		// 2. If food not found, call ML service to scrape food data
+		foodFromMl, err := s.scanRepo.SearchFoodFromML(req.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		// 3. Check if respone alert not found
+		if foodFromMl.Alert == "Food not found" {
+			return nil, fmt.Errorf("food not found")
+		}
+
+		// 4. Save food data to database
+		foodData := models.Food{
+			Name: foodFromMl.FoodName,
+		}
+		if err := s.scanRepo.CreateFood(&foodData); err != nil {
+			return nil, err
+		}
+
+		// 5. Save food nutrition data to database
+		nutritions := models.FoodNutrition{
+			FoodID:        foodData.ID,
+			Calories:      foodFromMl.NutritionInfo.Calories,
+			Sugar:         foodFromMl.NutritionInfo.Sugar,
+			Fat:           foodFromMl.NutritionInfo.Fat,
+			Carbohydrates: foodFromMl.NutritionInfo.Carbohydrates,
+			Proteins:      foodFromMl.NutritionInfo.Proteins,
+			Weight:        foodFromMl.Weight,
+		}
+		if err := s.scanRepo.CreateFoodNutrition(&nutritions); err != nil {
+			return nil, err
+		}
+
+		nutritions = helper.CalculateNutrients(nutritions.Weight, &nutritions)
+		food = &models.FoodWithNutritions{
+			Food:      foodData,
+			Nutrition: nutritions,
+		}
+
+	}
+
+	// calculate nutrition data
+	food.Nutrition = helper.CalculateNutrients(req.Weight, &food.Nutrition)
+
+	// return food data
+	data := &models.ScanFood{
+		Name:          food.Food.Name,
+		Calories:      food.Nutrition.Calories,
+		Protein:       food.Nutrition.Proteins,
+		Sugar:         food.Nutrition.Sugar,
+		Carbohydrates: food.Nutrition.Carbohydrates,
+		Fat:           food.Nutrition.Fat,
+		Weight:        food.Nutrition.Weight,
+	}
+
+	return data, nil
 }

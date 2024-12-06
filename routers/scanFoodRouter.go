@@ -14,13 +14,14 @@ import (
 func scanFoodRouter(r *gin.RouterGroup) {
 	//initialize dependencies
 	client := http.Client{}
-	repo := repositories.NewScanFoodRepository(&client)
+	repo := repositories.NewScanFoodRepository(&client, config.DB)
 	storageRepo := repositories.NewStorageBucketService(config.Client)
 	service := services.NewScanFoodService(repo, storageRepo)
 	scanFoodhandler := handlers.NewScanFoodHandler(service)
 
 	// user routes
-	prefix := r.Group("/food/scan")
+	prefix := r.Group("/food")
 	prefix.Use(middleware.AuthMiddleware())
-	prefix.POST("/", scanFoodhandler.ScanFood)
+	prefix.POST("/scan", scanFoodhandler.ScanFood)
+	prefix.POST("/find", scanFoodhandler.FindFood)
 }

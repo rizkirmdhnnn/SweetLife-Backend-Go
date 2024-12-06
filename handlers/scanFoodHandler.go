@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rizkirmdhnnn/sweetlife-backend-go/dto"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/errors"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/services"
 )
@@ -47,5 +48,27 @@ func (s *ScanFoodHandler) ScanFood(c *gin.Context) {
 		"status":    true,
 		"message":   "Food detected successfully",
 		"food_list": scanFoodResponse.FoodList,
+	})
+}
+
+// SearchFood is a handler to search food
+func (s *ScanFoodHandler) FindFood(c *gin.Context) {
+	var req dto.FindFoodRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
+		return
+	}
+
+	// call searchFood service
+	food, err := s.scanFoodService.SearchFood(&req)
+	if err != nil {
+		errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  true,
+		"message": "Food found successfully",
+		"data":    food,
 	})
 }
