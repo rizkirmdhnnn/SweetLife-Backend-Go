@@ -83,6 +83,13 @@ func (h *healthProfileService) GetHealthProfile(userID string) (*dto.HealthProfi
 
 // CreateHealthProfile implements HealthProfileService.
 func (h *healthProfileService) CreateHealthProfile(profile *dto.HealthProfileDto) error {
+
+	// check if user has health profile
+	_, err := h.healthRepo.GetHealthProfileByUserID(profile.UserID)
+	if err == nil {
+		return errors.New("health profile already exists")
+	}
+
 	if profile.Height <= 0 || profile.Weight <= 0 {
 		return errors.New("height and weight must be greater than zero")
 	}
