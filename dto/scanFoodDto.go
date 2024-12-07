@@ -65,3 +65,11 @@ type FindFoodRequest struct {
 	Name   string  `json:"name"`
 	Weight float64 `json:"weight"`
 }
+
+type SaveFoodRequest struct {
+	Scan        []ScanFood `json:"scan"`
+	Additionall []struct {
+		Name   string  `json:"name"`
+		Weight float64 `json:"weight"`
+	} `json:"additionall"`
+}

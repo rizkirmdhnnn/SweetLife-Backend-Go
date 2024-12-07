@@ -32,11 +32,12 @@ type FoodWithNutritions struct {
 
 type UserFoodHistory struct {
 	ID        uint      `json:"id" gorm:"primaryKey;autoIncrement"`
-	UserID    uint      `gorm:"not null;index" json:"user_id"`
+	UserID    string    `gorm:"not null;index" json:"user_id"`
 	User      User      `json:"user" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	FoodID    uint      `gorm:"not null;index" json:"food_id"`
 	Food      Food      `json:"food" gorm:"foreignKey:FoodID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Unit      int       `gorm:"not null" json:"unit"`
+	Weight    *float64  `gorm:"default:null" json:"weight"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }

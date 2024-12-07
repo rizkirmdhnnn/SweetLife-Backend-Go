@@ -72,3 +72,25 @@ func (s *ScanFoodHandler) FindFood(c *gin.Context) {
 		"data":    food,
 	})
 }
+
+// SaveFood is a handler to save food
+func (s *ScanFoodHandler) SaveFood(c *gin.Context) {
+	userID := c.GetString("userID")
+	var req dto.SaveFoodRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", err.Error())
+		return
+	}
+
+	// call saveFood service
+	err := s.scanFoodService.SaveFood(&req, userID)
+	if err != nil {
+		errors.SendErrorResponse(c, http.StatusInternalServerError, "Failed to save food", err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  true,
+		"message": "Food saved successfully",
+	})
+}

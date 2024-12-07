@@ -23,4 +23,5 @@ func scanFoodRouter(r *gin.RouterGroup) {
 	prefix.Use(middleware.AuthMiddleware())
 	prefix.POST("/scan", scanFoodhandler.ScanFood)
 	prefix.POST("/find", scanFoodhandler.FindFood)
+	prefix.POST("/save", scanFoodhandler.SaveFood)
 }

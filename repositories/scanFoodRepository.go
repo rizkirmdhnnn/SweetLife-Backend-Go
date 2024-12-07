@@ -19,8 +19,12 @@ type ScanFoodRepository interface {
 	SearchFoodFromDB(name string) (*models.FoodWithNutritions, error)
 	SearchFoodAPI(foodName string) (*dto.FoodNutritionResponse, error)
 
+	GetFoodIDs(foodNames *[]dto.ScanFood) (map[string]uint, error)
+
 	CreateFood(food *models.Food) error
 	CreateFoodNutrition(foodNutrition *models.FoodNutrition) error
+
+	SaveUserFoodHistory(food *[]models.UserFoodHistory) error
 }
 
 type scanFoodRepository struct {
@@ -145,6 +149,40 @@ func (s *scanFoodRepository) CreateFood(food *models.Food) error {
 // CreateFoodNutrition implements ScanFoodRepository.
 func (s *scanFoodRepository) CreateFoodNutrition(foodNutrition *models.FoodNutrition) error {
 	result := s.db.Create(foodNutrition)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// GetFoodIDs implements ScanFoodRepository.
+func (s *scanFoodRepository) GetFoodIDs(foodNames *[]dto.ScanFood) (map[string]uint, error) {
+	var foods []models.Food
+	var names []string
+
+	// Ekstrak nama makanan dari slice dto.ScanFood
+	for _, food := range *foodNames {
+		names = append(names, food.Name)
+	}
+
+	// Query untuk mengambil ID berdasarkan nama makanan
+	if err := s.db.Where("name IN ?", names).Find(&foods).Error; err != nil {
+		return nil, err
+	}
+
+	// Buat map nama makanan ke ID
+	foodMap := make(map[string]uint)
+	for _, food := range foods {
+		foodMap[food.Name] = food.ID
+	}
+
+	return foodMap, nil
+}
+
+// SaveUserFoodHistory implements ScanFoodRepository.
+func (s *scanFoodRepository) SaveUserFoodHistory(food *[]models.UserFoodHistory) error {
+	result := s.db.Create(food)
 	if result.Error != nil {
 		return result.Error
 	}

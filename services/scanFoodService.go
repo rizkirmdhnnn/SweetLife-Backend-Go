@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"mime/multipart"
@@ -20,6 +21,7 @@ import (
 type ScanFoodService interface {
 	ScanFood(file *multipart.FileHeader) (*dto.ScanFoodResponse, error)
 	SearchFood(req *dto.FindFoodRequest) (*models.ScanFood, error)
+	SaveFood(req *dto.SaveFoodRequest, userId string) error
 }
 
 type scanFoodService struct {
@@ -172,4 +174,67 @@ func (s *scanFoodService) SearchFood(req *dto.FindFoodRequest) (*models.ScanFood
 	}
 
 	return data, nil
+}
+
+// SaveFood implements ScanFoodService.
+func (s *scanFoodService) SaveFood(req *dto.SaveFoodRequest, userId string) error {
+	var histories []models.UserFoodHistory
+
+	// 1. Proses makanan hasil scan
+	if len(req.Scan) > 0 {
+		// Ambil ID makanan hasil scan
+		foodMap, err := s.scanRepo.GetFoodIDs(&req.Scan)
+		if err != nil {
+			return err
+		}
+
+		// Buat data user food history dari hasil scan
+		for _, food := range req.Scan {
+			histories = append(histories, models.UserFoodHistory{
+				UserID: userId,
+				FoodID: foodMap[food.Name],
+				Unit:   food.Unit,
+				Weight: nil, // Berat tidak digunakan di data hasil scan
+			})
+		}
+	}
+
+	// 2. Proses makanan tambahan
+	if len(req.Additionall) > 0 {
+		// Konversi data tambahan ke format ScanFood
+		var additionalScanFoods []dto.ScanFood
+		for _, food := range req.Additionall {
+			additionalScanFoods = append(additionalScanFoods, dto.ScanFood{
+				Name: food.Name,
+			})
+		}
+
+		// Ambil ID makanan tambahan
+		foodMap, err := s.scanRepo.GetFoodIDs(&additionalScanFoods)
+		if err != nil {
+			return err
+		}
+
+		// Buat data user food history dari makanan tambahan
+		for _, food := range req.Additionall {
+			histories = append(histories, models.UserFoodHistory{
+				UserID: userId,
+				FoodID: foodMap[food.Name],
+				Unit:   1,
+				Weight: &food.Weight,
+			})
+		}
+	}
+
+	// 3. Simpan semua data user food history ke database
+	if len(histories) > 0 {
+		if err := s.scanRepo.SaveUserFoodHistory(&histories); err != nil {
+			if strings.Contains(err.Error(), "violates foreign key constraint") {
+				return errors.New("food not found")
+			}
+			return err
+		}
+	}
+
+	return nil
 }
