@@ -123,11 +123,12 @@ func (u *userService) GetProfile(id string) (*dto.UserResponse, error) {
 
 	// create response
 	res := dto.UserResponse{
-		ID:          user.ID,
-		Email:       user.Email,
-		Name:        user.Name,
-		DateOfBirth: user.DateOfBirth.Format("2006-01-02"),
-		Gender:      user.Gender,
+		ID:           user.ID,
+		Email:        user.Email,
+		Name:         user.Name,
+		DateOfBirth:  user.DateOfBirth.Format("2006-01-02"),
+		Gender:       user.Gender,
+		PhotoProfile: &user.ImageUrl,
 	}
 
 	return &res, nil

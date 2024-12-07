@@ -20,12 +20,13 @@ type RefreshTokenRequest struct {
 }
 
 type UserResponse struct {
-	ID               string `json:"id"`
-	Email            string `json:"email"`
-	Name             string `json:"name"`
-	DateOfBirth      string `json:"date_of_birth"`
-	Gender           string `json:"gender"`
-	HasHealthProfile bool   `json:"has_health_profile"`
+	ID               string  `json:"id"`
+	Email            string  `json:"email"`
+	Name             string  `json:"name"`
+	DateOfBirth      string  `json:"date_of_birth"`
+	Gender           string  `json:"gender"`
+	HasHealthProfile *bool   `json:"has_health_profile,omitempty"`
+	PhotoProfile     *string `json:"photo_profile,omitempty"`
 }
 
 type TokenResponse struct {

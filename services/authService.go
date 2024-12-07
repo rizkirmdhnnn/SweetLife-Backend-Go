@@ -161,7 +161,7 @@ func createLoginResponse(user *models.User, accessToken, refreshToken string, he
 			Name:             user.Name,
 			Email:            user.Email,
 			Gender:           user.Gender,
-			HasHealthProfile: healthProfile,
+			HasHealthProfile: &healthProfile,
 			DateOfBirth:      user.DateOfBirth.Format("2006-01-02"),
 		},
 	}
