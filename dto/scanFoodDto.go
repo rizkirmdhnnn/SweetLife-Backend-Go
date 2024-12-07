@@ -1,5 +1,27 @@
 package dto
 
+type FoodNutritionResponseClient struct {
+	Foods []struct {
+		Description   string `json:"description"`
+		FoodCategory  string `json:"foodCategory"`
+		FoodNutrients []struct {
+			NutrientName string  `json:"nutrientName"`
+			Value        float64 `json:"value"`
+			UnitName     string  `json:"unitName"`
+		} `json:"foodNutrients"`
+	} `json:"foods"`
+}
+
+type FoodNutritionResponse struct {
+	Name     string  `json:"name"`
+	Calories float64 `json:"calories"`
+	Protein  float64 `json:"protein"`
+	Fat      float64 `json:"fat"`
+	Carbs    float64 `json:"carbs"`
+	Sugar    float64 `json:"sugar"`
+	Weight   float64 `json:"weight"`
+}
+
 type ScanFoodClientResp struct {
 	Objects []ScanFood `json:"objects"`
 }

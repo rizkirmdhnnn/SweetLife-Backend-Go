@@ -3,8 +3,11 @@ package repositories
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/dto"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/models"
@@ -14,7 +17,7 @@ import (
 type ScanFoodRepository interface {
 	ScanFood(image string) (*dto.ScanFoodClientResp, error)
 	SearchFoodFromDB(name string) (*models.FoodWithNutritions, error)
-	SearchFoodFromML(name string) (*dto.FindFoodClientResp, error)
+	SearchFoodAPI(foodName string) (*dto.FoodNutritionResponse, error)
 
 	CreateFood(food *models.Food) error
 	CreateFoodNutrition(foodNutrition *models.FoodNutrition) error
@@ -23,14 +26,15 @@ type ScanFoodRepository interface {
 type scanFoodRepository struct {
 	httpClient *http.Client
 	db         *gorm.DB
+	apiKey     string
 }
 
 // CreateFood implements ScanFoodRepository.
-
-func NewScanFoodRepository(httpClient *http.Client, db *gorm.DB) ScanFoodRepository {
+func NewScanFoodRepository(httpClient *http.Client, db *gorm.DB, apiKey string) ScanFoodRepository {
 	return &scanFoodRepository{
 		httpClient: httpClient,
 		db:         db,
+		apiKey:     apiKey,
 	}
 }
 
@@ -58,34 +62,6 @@ func (s *scanFoodRepository) ScanFood(image string) (*dto.ScanFoodClientResp, er
 	return &scanFoodResponse, nil
 }
 
-// SearchFoodFromML implements ScanFoodRepository.
-func (s *scanFoodRepository) SearchFoodFromML(name string) (*dto.FindFoodClientResp, error) {
-	data := map[string]interface{}{
-		"name":   name,
-		"weight": 100,
-	}
-
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.httpClient.Post("https://ml.sweetlife.my.id/food_nutritions", "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, err
-	}
-
-	var findFoodResp dto.FindFoodClientResp
-	err = json.NewDecoder(resp.Body).Decode(&findFoodResp)
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Print(findFoodResp)
-
-	return &findFoodResp, nil
-}
-
 // SearchFood implements ScanFoodRepository.
 func (s *scanFoodRepository) SearchFoodFromDB(name string) (*models.FoodWithNutritions, error) {
 	var foodWithNutrition models.FoodWithNutritions
@@ -103,6 +79,60 @@ func (s *scanFoodRepository) SearchFoodFromDB(name string) (*models.FoodWithNutr
 	return &foodWithNutrition, nil
 }
 
+// SearchFoodAPI implements ScanFoodRepository.
+func (s *scanFoodRepository) SearchFoodAPI(foodName string) (*dto.FoodNutritionResponse, error) {
+	url := fmt.Sprintf("https://api.nal.usda.gov/fdc/v1/foods/search?api_key=%s&query=%s", s.apiKey, strings.ReplaceAll(foodName, " ", "%20"))
+	resp, err := s.httpClient.Get(url)
+	if err != nil {
+		log.Fatal("Failed to fetch data:", err)
+	}
+
+	var food dto.FoodNutritionResponseClient
+	err = json.NewDecoder(resp.Body).Decode(&food)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
+		return nil, err
+	}
+
+	// if no food data found.
+	if len(food.Foods) == 0 {
+		return nil, errors.New("food not found")
+	}
+
+	// Extract the first food data.
+	foodData := food.Foods[0]
+
+	// Nutrient extraction using a map
+	targetNutrients := map[string]*float64{
+		"Energy":                      new(float64),
+		"Protein":                     new(float64),
+		"Total lipid (fat)":           new(float64),
+		"Carbohydrate, by difference": new(float64),
+		"Total Sugars":                new(float64),
+	}
+
+	// Extract the nutrient value.
+	for _, nutrient := range foodData.FoodNutrients {
+		if target, exists := targetNutrients[nutrient.NutrientName]; exists {
+			*target = nutrient.Value
+		}
+	}
+
+	// Create the response data.
+	data := dto.FoodNutritionResponse{
+		Name:     foodName,
+		Calories: *targetNutrients["Energy"],
+		Protein:  *targetNutrients["Protein"],
+		Fat:      *targetNutrients["Total lipid (fat)"],
+		Carbs:    *targetNutrients["Carbohydrate, by difference"],
+		Sugar:    *targetNutrients["Total Sugars"],
+		Weight:   100,
+	}
+
+	return &data, nil
+}
+
+// CreateFood implements ScanFoodRepository.
 func (s *scanFoodRepository) CreateFood(food *models.Food) error {
 	result := s.db.Create(food)
 	if result.Error != nil {

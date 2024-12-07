@@ -33,6 +33,8 @@ type Env struct {
 
 	PROJECT_ID                string
 	GOOGLE_CREDENTIALS_BASE64 string
+
+	USDA_API_KEY string
 }
 
 func LoadEnv() {
@@ -66,10 +68,19 @@ func LoadEnv() {
 
 		PROJECT_ID:                getEnv("PROJECT_ID", ""),
 		GOOGLE_CREDENTIALS_BASE64: getEnv("GOOGLE_CREDENTIALS_BASE64", ""),
+
+		USDA_API_KEY: getEnv("USDA_API_KEY", ""),
 	}
 
 	if ENV.APP_ENV == "development" {
 		log.Println("Running in development mode")
+		// set db to local"
+		ENV.DB_HOST = "localhost"
+		ENV.DB_PORT = "5432"
+		ENV.DB_USER = "rizkirmdhn"
+		ENV.DB_PASSWORD = "rizkirmdhn"
+		ENV.DB_NAME = "sweetlife-go"
+
 		ENV.APP_HOST = fmt.Sprintf("%s:%s", ENV.APP_HOST, ENV.APP_PORT)
 	} else {
 		log.Println("Running in production mode")

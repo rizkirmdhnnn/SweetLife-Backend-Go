@@ -13,8 +13,7 @@ import (
 
 func scanFoodRouter(r *gin.RouterGroup) {
 	//initialize dependencies
-	client := http.Client{}
-	repo := repositories.NewScanFoodRepository(&client, config.DB)
+	repo := repositories.NewScanFoodRepository(&http.Client{}, config.DB, config.ENV.USDA_API_KEY)
 	storageRepo := repositories.NewStorageBucketService(config.Client)
 	service := services.NewScanFoodService(repo, storageRepo)
 	scanFoodhandler := handlers.NewScanFoodHandler(service)

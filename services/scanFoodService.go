@@ -122,19 +122,14 @@ func (s *scanFoodService) SearchFood(req *dto.FindFoodRequest) (*models.ScanFood
 	food, err := s.scanRepo.SearchFoodFromDB(req.Name)
 	if err != nil {
 		// 2. If food not found, call ML service to scrape food data
-		foodFromMl, err := s.scanRepo.SearchFoodFromML(req.Name)
+		foodFromAPI, err := s.scanRepo.SearchFoodAPI(req.Name)
 		if err != nil {
 			return nil, err
 		}
 
-		// 3. Check if respone alert not found
-		if foodFromMl.Alert == "Food not found" {
-			return nil, fmt.Errorf("food not found")
-		}
-
 		// 4. Save food data to database
 		foodData := models.Food{
-			Name: foodFromMl.FoodName,
+			Name: foodFromAPI.Name,
 		}
 		if err := s.scanRepo.CreateFood(&foodData); err != nil {
 			return nil, err
@@ -143,12 +138,12 @@ func (s *scanFoodService) SearchFood(req *dto.FindFoodRequest) (*models.ScanFood
 		// 5. Save food nutrition data to database
 		nutritions := models.FoodNutrition{
 			FoodID:        foodData.ID,
-			Calories:      foodFromMl.NutritionInfo.Calories,
-			Sugar:         foodFromMl.NutritionInfo.Sugar,
-			Fat:           foodFromMl.NutritionInfo.Fat,
-			Carbohydrates: foodFromMl.NutritionInfo.Carbohydrates,
-			Proteins:      foodFromMl.NutritionInfo.Proteins,
-			Weight:        foodFromMl.Weight,
+			Calories:      foodFromAPI.Calories,
+			Sugar:         foodFromAPI.Sugar,
+			Fat:           foodFromAPI.Fat,
+			Carbohydrates: foodFromAPI.Carbs,
+			Proteins:      foodFromAPI.Protein,
+			Weight:        foodFromAPI.Weight,
 		}
 		if err := s.scanRepo.CreateFoodNutrition(&nutritions); err != nil {
 			return nil, err
