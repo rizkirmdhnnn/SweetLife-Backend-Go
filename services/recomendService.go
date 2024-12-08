@@ -1,10 +1,12 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/dto"
 	"github.com/rizkirmdhnnn/sweetlife-backend-go/repositories"
+	"gorm.io/gorm"
 )
 
 type RecomendationService interface {
@@ -31,20 +33,24 @@ func NewRecomendationService(recomendationRepo repositories.RecomendationRepo, h
 
 // GetRecomendations implements RecomendationService.
 func (r *recomendationService) GetFoodRecomendations(userid string) ([]*dto.FoodRecomendation, error) {
-
-	//get risk percentage
 	healthProfile, err := r.healthRepo.GetRiskAssessmentByUserID(userid)
+	var riskScore float32
+
 	if err != nil {
-		//TODO: if user not found
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			riskScore = 100
+		} else {
+			return nil, err
+		}
+	} else {
+		riskScore = float32(healthProfile.RiskScore)
 	}
 
-	//get recomendation
-	foodRecomendationClientResp, err := r.recomendationRepo.GetFoodRecomendations(float32(healthProfile.RiskScore))
+	// 2. Get recommendations
+	foodRecomendationClientResp, err := r.recomendationRepo.GetFoodRecomendations(riskScore)
 	if err != nil {
 		return nil, err
 	}
-
 	var foodRecomendations []*dto.FoodRecomendation
 	for _, foodList := range foodRecomendationClientResp.FoodRecomendation {
 		for _, food := range foodList {
