@@ -19,8 +19,9 @@ func userRouter(r *gin.RouterGroup) {
 	userHandler := handlers.NewUserHandler(userService, storageService)
 
 	// user routes
-	prefix := r.Group("/users/profile")
+	prefix := r.Group("/users")
 	prefix.Use(middleware.AuthMiddleware())
-	prefix.GET("/", userHandler.GetProfile)
-	prefix.PUT("/", userHandler.UpdateProfile)
+	prefix.GET("/profile", userHandler.GetProfile)
+	prefix.PUT("/profile", userHandler.UpdateProfile)
+	prefix.GET("/history", userHandler.GetHistory)
 }

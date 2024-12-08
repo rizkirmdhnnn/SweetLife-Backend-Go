@@ -79,3 +79,21 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 		"data":   user,
 	})
 }
+
+// GetHistory
+func (h *UserHandler) GetHistory(c *gin.Context) {
+	// get userID from context
+	userID := c.GetString("userID")
+
+	foodHistory, err := h.userService.GetFoodHistoryWithPagination(userID)
+	if err != nil {
+		errors.SendErrorResponse(c, http.StatusInternalServerError, "failed to get user history", err.Error())
+		return
+	}
+
+	// give success response
+	c.JSON(http.StatusOK, gin.H{
+		"status": true,
+		"data":   foodHistory,
+	})
+}

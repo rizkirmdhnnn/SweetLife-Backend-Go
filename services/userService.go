@@ -20,6 +20,7 @@ type UserService interface {
 	UpdateProfile(id string, photoProfile *multipart.FileHeader, req *dto.UpdateUserRequest) error
 	// Profile
 	GetProfile(id string) (*dto.UserResponse, error)
+	GetFoodHistoryWithPagination(userID string) (*dto.FoodHistoryResponse, error)
 }
 
 type userService struct {
@@ -132,4 +133,55 @@ func (u *userService) GetProfile(id string) (*dto.UserResponse, error) {
 	}
 
 	return &res, nil
+}
+
+func (s *userService) GetFoodHistoryWithPagination(userID string) (*dto.FoodHistoryResponse, error) {
+	// Get food history
+	foodHistory, err := s.userRepo.GetFoodHistory(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// create map to store food history by date
+	foodHistoryMap := make(map[string]*dto.FoodHistoryEntry)
+
+	// Iterate over food history
+	for _, entry := range foodHistory {
+		// Format date
+		formattedDate := entry.Date.Format("2006-01-02")
+
+		// If date not exists in map, create new entry
+		if _, exists := foodHistoryMap[formattedDate]; !exists {
+			foodHistoryMap[formattedDate] = &dto.FoodHistoryEntry{
+				Date:          formattedDate,
+				TotalCalories: 0,
+				Entries:       []dto.FoodHistoryByDate{},
+			}
+		}
+
+		// Add calories to total calories
+		foodHistoryMap[formattedDate].TotalCalories += entry.Calories
+
+		// Add entry to entries
+		foodHistoryMap[formattedDate].Entries = append(foodHistoryMap[formattedDate].Entries, dto.FoodHistoryByDate{
+			ID:         entry.ID,
+			FoodName:   entry.FoodName,
+			Calories:   entry.Calories,
+			Time:       entry.Time,
+			TotalUnits: entry.TotalUnits,
+		})
+	}
+
+	// Convert map to slice
+	var finalFoodHistory []dto.FoodHistoryEntry
+	for _, entry := range foodHistoryMap {
+		finalFoodHistory = append(finalFoodHistory, *entry)
+	}
+
+	// Create response
+	response := &dto.FoodHistoryResponse{
+		FoodHistory: finalFoodHistory,
+	}
+
+	return response, nil
 }
