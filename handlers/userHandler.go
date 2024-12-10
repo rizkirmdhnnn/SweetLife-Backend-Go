@@ -97,3 +97,21 @@ func (h *UserHandler) GetHistory(c *gin.Context) {
 		"data":   foodHistory,
 	})
 }
+
+// GetDashboard
+func (h *UserHandler) GetDashboard(c *gin.Context) {
+	// get userID from context
+	userID := c.GetString("userID")
+
+	dashboard, err := h.userService.GetDashboard(userID)
+	if err != nil {
+		errors.SendErrorResponse(c, http.StatusInternalServerError, "failed to get user dashboard", err.Error())
+		return
+	}
+
+	// give success response
+	c.JSON(http.StatusOK, gin.H{
+		"status": true,
+		"data":   dashboard,
+	})
+}

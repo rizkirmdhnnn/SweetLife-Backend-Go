@@ -5,9 +5,11 @@ import "time"
 type ActivityLevel string
 
 const (
-	LowActivity      ActivityLevel = "low"
-	ModerateActivity ActivityLevel = "moderate"
-	HighActivity     ActivityLevel = "high"
+	Sedentary ActivityLevel = "never"     // Tidak pernah olahraga
+	Light     ActivityLevel = "light"     // Olahraga 1 - 3 hari per minggu
+	Moderate  ActivityLevel = "moderate"  // Olahraga 3 - 5 hari per minggu
+	Active    ActivityLevel = "active"    // Olahraga 6 - 7 hari per minggu
+	Extremely ActivityLevel = "extremely" // setiap hari bisa 2x dalam sehari
 )
 
 type DiabeticType string

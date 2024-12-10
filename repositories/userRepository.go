@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	Update(user *models.User) error
 	GetFoodHistory(userID string) ([]dto.FoodHistoryByDate, error)
+	GetDailyNutrition(userID string) (*dto.DailyNutrition, error)
 }
 
 // userRepository is a struct to store db connection
@@ -72,4 +73,54 @@ func (r *userRepository) GetFoodHistory(userID string) ([]dto.FoodHistoryByDate,
 	}
 
 	return foodHistory, nil
+}
+
+// GetDailyNutrition implements UserRepository.
+func (r *userRepository) GetDailyNutrition(userID string) (*dto.DailyNutrition, error) {
+	var dailyNutrition dto.DailyNutrition
+	r.db.Raw(`
+	SELECT 
+    DATE(user_food_histories.created_at) AS date,
+    ROUND(
+        SUM(
+            CASE 
+                WHEN user_food_histories.weight IS NOT NULL AND user_food_histories.weight > 0 
+                THEN food_nutritions.calories * (user_food_histories.weight / 100.0)
+                ELSE food_nutritions.calories * user_food_histories.unit
+            END
+        ), 1
+    ) AS total_calories,
+    ROUND(
+        SUM(
+            CASE 
+                WHEN user_food_histories.weight IS NOT NULL AND user_food_histories.weight > 0 
+                THEN food_nutritions.sugar * (user_food_histories.weight / 100.0)
+                ELSE food_nutritions.sugar * user_food_histories.unit
+            END
+        ), 1
+    ) AS total_sugar,
+    ROUND(
+        SUM(
+            CASE 
+                WHEN user_food_histories.weight IS NOT NULL AND user_food_histories.weight > 0 
+                THEN food_nutritions.carbohydrates * (user_food_histories.weight / 100.0)
+                ELSE food_nutritions.carbohydrates * user_food_histories.unit
+            END
+        ), 1
+    ) AS total_carbs
+FROM 
+    user_food_histories
+JOIN 
+    foods ON foods.id = user_food_histories.food_id
+JOIN 
+    food_nutritions ON food_nutritions.food_id = foods.id
+WHERE 
+    user_food_histories.user_id = ?
+GROUP BY 
+    DATE(user_food_histories.created_at)
+ORDER BY 
+    DATE(user_food_histories.created_at) DESC;
+	`, userID).Scan(&dailyNutrition)
+
+	return &dailyNutrition, nil
 }

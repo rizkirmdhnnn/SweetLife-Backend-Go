@@ -14,7 +14,8 @@ func userRouter(r *gin.RouterGroup) {
 	userRepo := repositories.NewUserRepository(config.DB)
 	authRepo := repositories.NewAuthRepository(config.DB)
 	storageRepo := repositories.NewStorageBucketService(config.Client)
-	userService := services.NewUserService(userRepo, authRepo, storageRepo)
+	healthRepo := repositories.NewHealthProfileRepository(config.DB)
+	userService := services.NewUserService(userRepo, authRepo, storageRepo, healthRepo)
 	storageService := services.NewStorageBucketService(storageRepo)
 	userHandler := handlers.NewUserHandler(userService, storageService)
 
@@ -24,4 +25,5 @@ func userRouter(r *gin.RouterGroup) {
 	prefix.GET("/profile", userHandler.GetProfile)
 	prefix.PUT("/profile", userHandler.UpdateProfile)
 	prefix.GET("/history", userHandler.GetHistory)
+	prefix.GET("/dashboard", userHandler.GetDashboard)
 }

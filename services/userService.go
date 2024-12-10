@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"net/url"
 	"path/filepath"
@@ -21,15 +22,19 @@ type UserService interface {
 	// Profile
 	GetProfile(id string) (*dto.UserResponse, error)
 	GetFoodHistoryWithPagination(userID string) (*dto.FoodHistoryResponse, error)
+
+	// GetDashboard
+	GetDashboard(userID string) (*dto.DailyProgressResponse, error)
 }
 
 type userService struct {
 	userRepo    repositories.UserRepository
 	authRepo    repositories.AuthRepository
 	storageRepo repositories.StorageBucketRepository
+	healthRepo  repositories.HealthProfileRepository
 }
 
-func NewUserService(userRepo repositories.UserRepository, authRepo repositories.AuthRepository, storageRepo repositories.StorageBucketRepository) UserService {
+func NewUserService(userRepo repositories.UserRepository, authRepo repositories.AuthRepository, storageRepo repositories.StorageBucketRepository, healthRepo repositories.HealthProfileRepository) UserService {
 	if userRepo == nil {
 		panic("userRepo cannot be nil")
 	}
@@ -40,11 +45,15 @@ func NewUserService(userRepo repositories.UserRepository, authRepo repositories.
 	if storageRepo == nil {
 		panic("storageRepo cannot be nil")
 	}
+	if healthRepo == nil {
+		panic("healthRepo cannot be nil")
+	}
 
 	return &userService{
 		userRepo:    userRepo,
 		authRepo:    authRepo,
 		storageRepo: storageRepo,
+		healthRepo:  healthRepo,
 	}
 }
 
@@ -135,6 +144,8 @@ func (u *userService) GetProfile(id string) (*dto.UserResponse, error) {
 	return &res, nil
 }
 
+// TODO: ini untuk makanan yang dimasukin manual total kalorinya belum bener
+// harusnya total kalorinya berdasarkan weightnya, klo yang sekarang masih berdasarkan total unit yang default weightnya 100
 func (s *userService) GetFoodHistoryWithPagination(userID string) (*dto.FoodHistoryResponse, error) {
 	// Get food history
 	foodHistory, err := s.userRepo.GetFoodHistory(userID)
@@ -184,4 +195,115 @@ func (s *userService) GetFoodHistoryWithPagination(userID string) (*dto.FoodHist
 	}
 
 	return response, nil
+}
+
+// GetDashboard implements UserService.
+func (u *userService) GetDashboard(userID string) (*dto.DailyProgressResponse, error) {
+	// Get user
+	user, err := u.authRepo.GetUserById(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get user health profile
+	profile, err := u.healthRepo.GetHealthProfileByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var userResp dto.UserRespStruct
+	userResp.Name = user.Name
+	userResp.Diabetes = profile.IsDiabetic
+
+	if profile.IsDiabetic {
+		diabetesDetails, err := u.healthRepo.GetDiabetesDetailsByProfileID(fmt.Sprintf("%d", profile.ID))
+		if err != nil {
+			return nil, err
+		}
+		userResp.DiabetesType = &diabetesDetails.DiabeticType
+	}
+
+	// Get user daily calories
+	dailyCalories, err := helper.CalculateDailyCalories(dto.DailyCaloriesRequest{
+		Height:        profile.Height,
+		Weight:        profile.Weight,
+		Gender:        user.Gender,
+		Age:           user.Age,
+		ActivityLevel: profile.ActivityLevel,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Get user daily sugar
+	dailySugar := helper.CalculateDailySugar(dailyCalories, profile.IsDiabetic)
+
+	// Get user daily nutrition
+	dailyCarb := helper.CalculateDialyCarbs(dailyCalories)
+
+	// Get user daily nutrition
+	dailyNutrition, err := u.userRepo.GetDailyNutrition(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Dalam fungsi GetDashboard
+	caloriesSatisfication := helper.DetermineSatisfication(
+		float64(dailyNutrition.TotalCalories),
+		float64(dailyCalories),
+	)
+
+	carbsSatisfication := helper.DetermineSatisfication(
+		float64(dailyNutrition.TotalCarbs),
+		float64(dailyCarb),
+	)
+
+	sugarSatisfication := helper.DetermineSatisfication(
+		float64(dailyNutrition.TotalSugar),
+		float64(dailySugar),
+	)
+
+	// Get user daily progress
+	dailyProgress := &dto.DailyProgressResponse{
+		Progress: dto.DailyProgress{
+			Calories: dto.DailyProgessPerItem{
+				Current:       dailyNutrition.TotalCalories,
+				Percent:       int(float64(dailyNutrition.TotalCalories) / float64(dailyCalories) * 100),
+				Satisfication: caloriesSatisfication,
+				Target:        dailyCalories,
+			},
+			Carbs: dto.DailyProgessPerItem{
+				Current:       dailyNutrition.TotalCarbs,
+				Percent:       int(float64(dailyNutrition.TotalCarbs) / float64(dailyCarb) * 100),
+				Satisfication: carbsSatisfication,
+				Target:        dailyCarb,
+			},
+			Sugar: dto.DailyProgessPerItem{
+				Current:       dailyNutrition.TotalSugar,
+				Percent:       int(float64(dailyNutrition.TotalSugar) / float64(dailySugar) * 100),
+				Satisfication: sugarSatisfication,
+				Target:        dailySugar,
+			},
+		},
+		Status: struct {
+			Message       string            `json:"message"`
+			Satisfication dto.Satisfication `json:"satisfication"`
+		}{
+			Message: helper.DetermineOverallMessage(caloriesSatisfication, carbsSatisfication, sugarSatisfication),
+			Satisfication: helper.DetermineOverallSatisfication(
+				dto.DailyProgessPerItem{
+					Satisfication: caloriesSatisfication,
+				},
+				dto.DailyProgessPerItem{
+					Satisfication: carbsSatisfication,
+				},
+				dto.DailyProgessPerItem{
+					Satisfication: sugarSatisfication,
+				},
+			),
+		},
+		User: userResp,
+	}
+
+	return dailyProgress, nil
 }
