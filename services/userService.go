@@ -107,6 +107,11 @@ func (u *userService) UpdateProfile(id string, photoProfile *multipart.FileHeade
 	// Parse date
 	date, _ := helper.ParsedDate(req.DateOfBirth)
 
+	// jika dateOfBirth itu tahun sekarang
+	if date.Year() == time.Now().Year() {
+		return errors.New("invalid date of birth")
+	}
+
 	// Update data user
 	user.Name = req.Name
 	user.DateOfBirth = date
