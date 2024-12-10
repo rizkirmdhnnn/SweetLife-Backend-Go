@@ -17,6 +17,7 @@ type DiabeticType string
 const (
 	Type1       DiabeticType = "type1"
 	Type2       DiabeticType = "type2"
+	Type3       DiabeticType = "type3"
 	Gestational DiabeticType = "gestational"
 )
 
