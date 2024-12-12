@@ -44,28 +44,30 @@ func (r *userRepository) GetFoodHistory(userID string) ([]dto.FoodHistoryByDate,
 	// Get food history data with the given page and page size
 	err := r.db.Raw(`
 		SELECT 
-			user_food_histories.id AS id,
-			DATE(user_food_histories.created_at) AS date,
-			SUM(user_food_histories.unit) AS total_units,
-			foods.name AS food_name,
-			food_nutritions.calories * user_food_histories.unit AS calories,
-			TO_CHAR(user_food_histories.created_at, 'HH24:MI') AS time
-		FROM 
-			user_food_histories
-		JOIN 
-			foods ON foods.id = user_food_histories.food_id
-		JOIN 
-			food_nutritions ON food_nutritions.food_id = foods.id
-		WHERE 
-			user_food_histories.user_id = ?
-		GROUP BY 
-			DATE(user_food_histories.created_at), 
-			user_food_histories.id, 
-			foods.name, 
-			food_nutritions.calories, 
-			TO_CHAR(user_food_histories.created_at, 'HH24:MI')
-		ORDER BY 
-			DATE(user_food_histories.created_at) DESC`, userID).
+    user_food_histories.id AS id,
+    DATE(user_food_histories.created_at) AS date,
+    SUM(user_food_histories.unit) AS total_units,
+    foods.name AS food_name,
+    food_nutritions.calories * user_food_histories.unit AS calories,
+    TO_CHAR(user_food_histories.created_at, 'HH24:MI') AS time
+FROM 
+    user_food_histories
+JOIN 
+    foods ON foods.id = user_food_histories.food_id
+JOIN 
+    food_nutritions ON food_nutritions.food_id = foods.id
+WHERE 
+    user_food_histories.user_id = ?
+GROUP BY 
+    DATE(user_food_histories.created_at), 
+    user_food_histories.id, 
+    foods.name, 
+    food_nutritions.calories, 
+    TO_CHAR(user_food_histories.created_at, 'HH24:MI'),
+    user_food_histories.created_at
+ORDER BY 
+    DATE(user_food_histories.created_at) DESC,
+    user_food_histories.created_at DESC;`, userID).
 		Scan(&foodHistory).Error
 
 	if err != nil {
