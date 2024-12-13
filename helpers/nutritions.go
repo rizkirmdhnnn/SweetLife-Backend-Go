@@ -27,14 +27,14 @@ func CalculateDailyCalories(req dto.DailyCaloriesRequest) (float64, error) {
 		return 0, errors.New("invalid input: weight, height, and age must be positive numbers")
 	}
 	if req.Gender != "Male" || req.Gender != "Female" {
-		return 0, errors.New("invalid gender: must be 'male' or 'female'")
+		return 0, errors.New("invalid gender: must be 'Male' or 'Female'")
 	}
 
 	// BMR Laki-laki = 66 + (13,7 x BB) + (5 x TB) – (6,78 x U).
 	// BMR Perempuan = 655 + (9,6 x BB) + (1,8 x TB) – (4,7 x U).
 	// Source : https://eprints.ums.ac.id/78765/3/mufid_Naskah%20Publikasi-143.pdf
 	var bmr float64
-	if req.Gender == "male" {
+	if req.Gender == "Male" {
 		bmr = 66 + (13.7 * req.Weight) + (5 * req.Height) - (6.78 * float64(req.Age))
 	} else { // female
 		bmr = 655 + (9.6 * req.Weight) + (1.8 * req.Height) - (4.7 * float64(req.Age))
