@@ -65,6 +65,10 @@ func (u *userService) UpdateProfile(id string, photoProfile *multipart.FileHeade
 		return err
 	}
 
+	if req.Gender != "Male" && req.Gender != "Female" {
+		return errors.New("gender harus Male or Female")
+	}
+
 	// Jika photoProfile disertakan, maka hapus file lama jika ada, lalu upload file baru
 	if photoProfile != nil {
 		// Hapus file lama jika user memiliki foto profile
