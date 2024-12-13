@@ -26,7 +26,7 @@ func CalculateDailyCalories(req dto.DailyCaloriesRequest) (float64, error) {
 	if req.Weight <= 0 || req.Height <= 0 || req.Age <= 0 {
 		return 0, errors.New("invalid input: weight, height, and age must be positive numbers")
 	}
-	if req.Gender != "Male" && req.Gender != "Female" {
+	if req.Gender != "Male" || req.Gender != "Female" {
 		return 0, errors.New("invalid gender: must be 'male' or 'female'")
 	}
 
