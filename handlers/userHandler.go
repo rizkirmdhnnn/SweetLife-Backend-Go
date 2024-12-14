@@ -61,6 +61,34 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	})
 }
 
+// UpdateProfile
+func (h *UserHandler) UpdatePhotoProfile(c *gin.Context) {
+	// get userID from context
+	userID := c.GetString("userID")
+
+	photoProfile, _ := c.FormFile("profile_picture")
+	// check if format not jpg or png
+	if photoProfile != nil {
+		if photoProfile.Header.Get("Content-Type") != "image/jpeg" && photoProfile.Header.Get("Content-Type") != "image/png" {
+			errors.SendErrorResponse(c, http.StatusBadRequest, "Invalid request data", "Profile picture must be in jpg or png format")
+			return
+		}
+	}
+
+	// call service to update user
+	err := h.userService.UpdatePhotoProfile(userID, photoProfile)
+	if err != nil {
+		errors.SendErrorResponse(c, http.StatusInternalServerError, "failed to update user", err.Error())
+		return
+	}
+
+	// give success response
+	c.JSON(http.StatusOK, gin.H{
+		"status":  true,
+		"message": "action success",
+	})
+}
+
 // GetProfile
 func (h *UserHandler) GetProfile(c *gin.Context) {
 	// get userID from context

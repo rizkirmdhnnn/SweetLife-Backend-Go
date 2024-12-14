@@ -24,6 +24,7 @@ func userRouter(r *gin.RouterGroup) {
 	prefix.Use(middleware.AuthMiddleware())
 	prefix.GET("/profile", userHandler.GetProfile)
 	prefix.PUT("/profile", userHandler.UpdateProfile)
+	prefix.PUT("/profile/image", userHandler.UpdatePhotoProfile)
 	prefix.GET("/history", userHandler.GetHistory)
 	prefix.GET("/dashboard", userHandler.GetDashboard)
 }

@@ -19,6 +19,8 @@ import (
 type UserService interface {
 	// UpdateProfile
 	UpdateProfile(id string, photoProfile *multipart.FileHeader, req *dto.UpdateUserRequest) error
+	UpdatePhotoProfile(id string, photoProfile *multipart.FileHeader) error
+
 	// Profile
 	GetProfile(id string) (*dto.UserResponse, error)
 	GetFoodHistoryWithPagination(userID string) (*dto.FoodHistoryResponse, error)
@@ -55,6 +57,61 @@ func NewUserService(userRepo repositories.UserRepository, authRepo repositories.
 		storageRepo: storageRepo,
 		healthRepo:  healthRepo,
 	}
+}
+
+func (u *userService) UpdatePhotoProfile(id string, photoProfile *multipart.FileHeader) error {
+	// Get user by ID
+	user, err := u.authRepo.GetUserById(id)
+	if err != nil {
+		return err
+	}
+
+	// Jika photoProfile disertakan, maka hapus file lama jika ada, lalu upload file baru
+	if photoProfile != nil {
+		// Hapus file lama jika user memiliki foto profile
+		if user.ImageUrl != "" {
+			url, err := url.Parse(user.ImageUrl)
+			if err != nil {
+				return errors.New("invalid file URL")
+			}
+
+			// Extract file path
+			filePath := strings.TrimPrefix(url.Path, "/sweetlife-go/") // Ganti sesuai root bucket Anda
+			if filePath == "" {
+				return errors.New("invalid file path")
+			}
+
+			// Hapus file lama
+			if err := u.storageRepo.DeleteFile(context.Background(), config.ENV.STORAGE_BUCKET, filePath); err != nil {
+				return err
+			}
+		}
+
+		// Upload foto profile baru
+		fileName := helper.GenerateFileName(filepath.Ext(photoProfile.Filename))
+		uploadPath := "website/photo-profile/"
+		file, err := photoProfile.Open()
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		urlPhotoProfile, err := u.storageRepo.UploadFile(context.Background(), config.ENV.STORAGE_BUCKET, uploadPath+fileName, file)
+		if err != nil {
+			return err
+		}
+
+		// Set URL foto profile baru ke user
+		user.ImageUrl = urlPhotoProfile
+	}
+
+	// Save user
+	err = u.userRepo.Update(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // UpdateProfile implements UserService.
