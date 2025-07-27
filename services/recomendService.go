@@ -109,57 +109,57 @@ func (r *recomendationService) GetExerciseRecomendations(userid string) (*dto.Ex
 		{
 			Name:  "Squats",
 			Desc:  "A strength training exercise involving the thighs, hips, and buttocks muscles. Squats help improve lower body strength and core stability.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Squats.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Squats.jpg",
 		},
 		{
 			Name:  "Deadlifts",
 			Desc:  "A weightlifting exercise where you lift a weight from the floor to your hips. Deadlifts strengthen the lower back, thighs, buttocks, and upper back muscles.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Deadlifts.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Deadlifts.jpg",
 		},
 		{
 			Name:  "Bench presses",
 			Desc:  "A strength exercise using a barbell or dumbbells, typically performed while lying on a bench. It focuses on strengthening the chest, shoulders, and triceps.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Bench%20presses.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Bench%20presses.jpg",
 		},
 		{
 			Name:  "Overhead presses",
 			Desc:  "A weightlifting exercise where you push a weight overhead from your shoulders. It helps train the shoulder muscles, triceps, and core stability.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Overhead%20presses.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Overhead%20presses.jpg",
 		},
 		{
 			Name:  "Yoga",
 			Desc:  "A physical and mental practice combining body postures, breathing techniques, and meditation. Yoga improves flexibility, balance, strength, and reduces stress.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Yoga.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Yoga.jpg",
 		},
 		{
 			Name:  "Brisk walking",
 			Desc:  "A fast-paced walk aimed at increasing heart rate. It's beneficial for heart health, calorie burning, and general fitness.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Brisk%20walking.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Brisk%20walking.jpg",
 		},
 		{
 			Name:  "Cycling",
 			Desc:  "An activity involving pedaling a bicycle that works the leg muscles, strengthens cardiovascular health, and burns calories. It can be done outdoors or on a stationary bike.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Cycling.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Cycling.jpg",
 		},
 		{
 			Name:  "Swimming",
 			Desc:  "A water sport that involves almost all the body's muscles. It helps improve endurance, breathing techniques, and protects joints due to low impact.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Swimming.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Swimming.jpg",
 		},
 		{
 			Name:  "Running",
 			Desc:  "A cardiovascular exercise that helps improve heart health, endurance, and burns a significant amount of calories.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Running.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Running.jpg",
 		},
 		{
 			Name:  "Dancing",
 			Desc:  "A physical activity involving rhythmic body movements to music. It's great for fitness, coordination, and mood improvement.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Dancing.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Dancing.jpg",
 		},
 		{
 			Name:  "Walking",
 			Desc:  "A light activity that can be done by anyone. It helps improve blood circulation, reduce stress, and maintain heart health.",
-			Image: "https://storage.googleapis.com/sweetlife-go/website/exercise/Walking.jpg",
+			Image: "https://storage.googleapis.com/sweetlife-go-new/website/exercise/Walking.jpg",
 		},
 	}
 

@@ -76,7 +76,7 @@ func (u *userService) UpdatePhotoProfile(id string, photoProfile *multipart.File
 			}
 
 			// Extract file path
-			filePath := strings.TrimPrefix(url.Path, "/sweetlife-go/") // Ganti sesuai root bucket Anda
+			filePath := strings.TrimPrefix(url.Path, "/sweetlife-go-new/") // Ganti sesuai root bucket Anda
 			if filePath == "" {
 				return errors.New("invalid file path")
 			}
@@ -136,7 +136,7 @@ func (u *userService) UpdateProfile(id string, photoProfile *multipart.FileHeade
 			}
 
 			// Extract file path
-			filePath := strings.TrimPrefix(url.Path, "/sweetlife-go/") // Ganti sesuai root bucket Anda
+			filePath := strings.TrimPrefix(url.Path, "/sweetlife-go-new/") // Ganti sesuai root bucket Anda
 			if filePath == "" {
 				return errors.New("invalid file path")
 			}

@@ -60,7 +60,7 @@ func (s *storageBucketService) DeleteFile(fileURL string) error {
 	}
 
 	// Extract the file path from the URL
-	filePath := strings.TrimPrefix(u.Path, "/sweetlife-go/") // Replace with your bucket root
+	filePath := strings.TrimPrefix(u.Path, "/sweetlife-go-new/") // Replace with your bucket root
 	if filePath == "" {
 		return errors.New("invalid file path")
 	}
