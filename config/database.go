@@ -41,6 +41,7 @@ func LoadDatabase() {
 		models.FoodNutrition{},
 		models.UserFoodHistory{},
 		models.MiniCourse{},
+		models.MiniGrocery{},
 	); err != nil {
 		log.Fatal("Failed to migrate table")
 	}
