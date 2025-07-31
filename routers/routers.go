@@ -12,6 +12,7 @@ func Routers(r *gin.Engine) {
 	healthRouter(prefix)
 	recomendationRouter(prefix)
 	scanFoodRouter(prefix)
+	minicourseRouter(prefix)
 
 	// health check
 	r.GET("/health", func(c *gin.Context) {

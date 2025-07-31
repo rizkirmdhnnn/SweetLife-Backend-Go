@@ -40,6 +40,7 @@ func LoadDatabase() {
 		models.Food{},
 		models.FoodNutrition{},
 		models.UserFoodHistory{},
+		models.MiniCourse{},
 	); err != nil {
 		log.Fatal("Failed to migrate table")
 	}
